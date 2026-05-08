@@ -480,7 +480,7 @@ textarea{resize:vertical;min-height:56px;}
 </div><!-- /#app -->
 
 <script>
-const NEW_DRIVE_ID = '1hdfQCDDZXR3PETo-gAjSNvcqUOK4gER-_ETe5L5-DwA';
+
 
 const TREENI_POHJA = [
   [
@@ -544,7 +544,7 @@ let currentLift=null,currentVko=16,currentTreeniIdx=0;
 
 function init(){
   try{const r=localStorage.getItem('p500_v6');if(r){const p=JSON.parse(r);S.log=p.log||[];S.settings={...S.settings,...p.settings};}}catch(e){}
-  S.settings.driveId=NEW_DRIVE_ID;
+  
   document.getElementById('pvm').value=today();
   document.getElementById('s-k').value=S.settings.k1rm;
   document.getElementById('s-p').value=S.settings.p1rm;
@@ -898,10 +898,6 @@ async function testDrive(){
       showToast('Yhteys toimii! ✓','success');
     }
   }catch(e){showToast('Yhteysvirhe: '+e.message,'error');}
-},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:100,messages:[{role:"user",content:`Hae tiedoston nimi ID:llä ${NEW_DRIVE_ID}`}],mcp_servers:[{type:"url",url:"https://drivemcp.googleapis.com/mcp/v1",name:"google-drive"}]})});
-    if(r.ok){document.getElementById('drive-row').innerHTML='<span class="dot dot-green"></span><span>Yhdistetty ✓</span>';showToast('Drive toimii! ✓','success');}
-    else throw new Error();
-  }catch(e){showToast('Drive-yhteydessä ongelma','error');}
 }
 
 function exportData(){const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='treenikirja-backup.json';a.click();}
