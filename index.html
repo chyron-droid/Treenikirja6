@@ -720,7 +720,7 @@ function collectData(){
     const name=block.querySelector('.ohjelma-name').textContent.trim();
     const comment=block.querySelector('textarea').value;
     const sets=[];
-    block.querySelectorAll('.set-row').forEach(row=>{const inp=row.querySelectorAll('input');sets.push({weight:inp[1].value,reps:inp[2].value,rpe:inp[3].value});});
+    block.querySelectorAll('.set-row').forEach(row=>{const inp=row.querySelectorAll('input');if(inp.length>=3){sets.push({weight:inp[0].value,reps:inp[1].value,rpe:inp[2].value});}});
     exercises.push({name,comment,sets});
   });
   return{id:Date.now(),date:document.getElementById('pvm').value,week:`VKO ${currentVko}`,type:TREENI_NIMET[currentTreeniIdx],vkoNum:currentVko,uni:document.getElementById('uni').value,valmius:document.getElementById('valmius').value,comment:document.getElementById('yleiskommentti').value,exercises};
