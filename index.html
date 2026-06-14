@@ -335,14 +335,38 @@ textarea{resize:vertical;min-height:56px;}
         <div class="input-group" style="margin-bottom:0">
           <label>Viikko</label>
           <select id="vko-sel" onchange="onVkoChange()">
-            <option value="16">VKO 16 — Keskikova</option>
-            <option value="17">VKO 17 — Kova</option>
-            <option value="18">VKO 18 — Kova</option>
-            <option value="19">VKO 19 — Helppo</option>
-            <option value="20">VKO 20 — Keskikova</option>
-            <option value="21">VKO 21 — Kova</option>
-            <option value="22">VKO 22 — Kova</option>
-            <option value="23">VKO 23 — Helppo</option>
+            <optgroup label="Ohjelma 1: VKO 16–23">
+              <option value="16">VKO 16 — Keskikova</option>
+              <option value="17">VKO 17 — Kova</option>
+              <option value="18">VKO 18 — Kova</option>
+              <option value="19">VKO 19 — Helppo</option>
+              <option value="20">VKO 20 — Keskikova</option>
+              <option value="21">VKO 21 — Kova</option>
+              <option value="22">VKO 22 — Kova</option>
+              <option value="23">VKO 23 — Helppo</option>
+            </optgroup>
+            <optgroup label="Hybridikausi: VKO 25–26">
+              <option value="25">VKO 25 — Kova</option>
+              <option value="26">VKO 26 — Kova</option>
+            </optgroup>
+            <optgroup label="Hybridikausi sali+koti: VKO 27–31">
+              <option value="27">VKO 27 — Helppo</option>
+              <option value="28">VKO 28 — Keskikova</option>
+              <option value="29">VKO 29 — Kova</option>
+              <option value="30">VKO 30 — Kova</option>
+              <option value="31">VKO 31 — Helppo</option>
+            </optgroup>
+            <optgroup label="Maksimivoimakausi: VKO 32–40">
+              <option value="32">VKO 32 — Kova</option>
+              <option value="33">VKO 33 — Kova</option>
+              <option value="34">VKO 34 — Helppo</option>
+              <option value="35">VKO 35 — Kova</option>
+              <option value="36">VKO 36 — Kova</option>
+              <option value="37">VKO 37 — Helppo</option>
+              <option value="38">VKO 38 — Kova</option>
+              <option value="39">VKO 39 — Herkistely</option>
+              <option value="40">VKO 40 — Kisa</option>
+            </optgroup>
           </select>
         </div>
         <div class="input-group" style="margin-bottom:0">
@@ -530,7 +554,398 @@ const VKO_PARAMS = {
   23:{varaa_main:'V2',varaa_hyper:'V2',sarjat_lisays:1,toistot_mod:-1,vain_treenit:[0,3]},
 };
 const TREENI_NIMET=['Yläkroppa 1','Ala- ja keskikroppa 1','Yläkroppa 2','Ala- ja keskikroppa 2'];
-const VKO_TYYPIT={16:'Keskikova',17:'Kova',18:'Kova',19:'Helppo',20:'Keskikova',21:'Kova',22:'Kova',23:'Helppo'};
+const VKO_TYYPIT={
+  16:'Keskikova',17:'Kova',18:'Kova',19:'Helppo',20:'Keskikova',21:'Kova',22:'Kova',23:'Helppo',
+  25:'Kova',26:'Kova',
+  27:'Helppo',28:'Keskikova',29:'Kova',30:'Kova',31:'Helppo',
+  32:'Kova',33:'Kova',34:'Helppo',35:'Kova',36:'Kova',37:'Helppo',38:'Kova',39:'Herkistely',40:'Kisa'
+};
+
+// ── UUSI OHJELMA VKO 25-40 ─────────────────────────────────────
+// Rakenne: OHJELMA2[vko] = [[treeni1liikkeet],[treeni2liikkeet],...]
+// Jokainen liike: {name, sarjat, toistot, varaa, note, vuoroPari, tauko}
+
+const OHJELMA2_TREENIT = {
+  // Treenijaot per viikko: indeksit viittaavat OHJELMA2_TREENINIMI-taulukkoon
+  25: { jako: [0,1,2,3], nimet:['Yläkroppa 1','Ala- ja keskikroppa 1','Yläkroppa 2','Ala- ja keskikroppa 2'] },
+  26: { jako: [0,1,2,3], nimet:['Yläkroppa 1','Ala- ja keskikroppa 1','Yläkroppa 2','Ala- ja keskikroppa 2'] },
+  27: { jako: [0,1], nimet:['Koko kroppa salilla','Yläkroppa kotona'] },
+  28: { jako: [0,1,2,3], nimet:['Koko kroppa salilla 1','Yläkroppa kotona','Koko kroppa salilla 2','Ala- ja keskikroppa kotona'] },
+  29: { jako: [0,1,2,3], nimet:['Koko kroppa salilla 1','Yläkroppa kotona','Koko kroppa salilla 2','Ala- ja keskikroppa kotona'] },
+  30: { jako: [0,1,2,3], nimet:['Koko kroppa salilla 1','Yläkroppa kotona','Koko kroppa salilla 2','Ala- ja keskikroppa kotona'] },
+  31: { jako: [0,1], nimet:['Koko kroppa salilla','Yläkroppa kotona'] },
+  32: { jako: [0,1,2,3], nimet:['Yläkroppa 1','Ala- ja keskikroppa 1','Yläkroppa 2','Ala- ja keskikroppa 2'] },
+  33: { jako: [0,1,2,3], nimet:['Yläkroppa 1','Ala- ja keskikroppa 1','Yläkroppa 2','Ala- ja keskikroppa 2'] },
+  34: { jako: [0,1], nimet:['Yläkroppa 1','Ala- ja keskikroppa 1'] },
+  35: { jako: [0,1,2,3], nimet:['Yläkroppa 1','Ala- ja keskikroppa 1','Yläkroppa 2','Ala- ja keskikroppa 2'] },
+  36: { jako: [0,1,2,3], nimet:['Yläkroppa 1','Ala- ja keskikroppa 1','Yläkroppa 2','Ala- ja keskikroppa 2'] },
+  37: { jako: [0,1], nimet:['Yläkroppa 1','Ala- ja keskikroppa 1'] },
+  38: { jako: [0,1,2,3], nimet:['Yläkroppa 1','Ala- ja keskikroppa 1','Yläkroppa 2','Ala- ja keskikroppa 2'] },
+  39: { jako: [0,1,2], nimet:['Yläkroppa 1','Ala- ja keskikroppa 1','Yläkroppa 2'] },
+  40: { jako: [0], nimet:['Kisaviikko (Ma) + Kisa (La)'] },
+};
+
+const OHJELMA2 = {
+  // ── VKO 25 ──────────────────────────────────────────────────
+  25: [
+    [ // T1 Yläkroppa 1
+      {name:'Penkkipunnerrus 2 s alastopeilla',sarjat:3,toistot:'3',varaa:'V2',tauko:'4 min'},
+      {name:'Rintaprässi',sarjat:4,toistot:'8',varaa:'V2',vuoroPari:'Vaakasoutulaite',tauko:'4 min'},
+      {name:'Vaakasoutulaite',sarjat:4,toistot:'8',varaa:'V2',vuoroPari:'Rintaprässi',tauko:'4 min'},
+      {name:'Push down',sarjat:2,toistot:'8',varaa:'V2',vuoroPari:'Olkanivelen ulkokierto taljassa (kyynärpää 45° irti)',tauko:'3 min'},
+      {name:'Olkanivelen ulkokierto taljassa (kyynärpää 45° irti)',sarjat:2,toistot:'8+8',varaa:'V2',vuoroPari:'Push down',tauko:'3 min'},
+    ],
+    [ // T2 Ala- ja keskikroppa 1
+      {name:'TrapBar-maastaveto syvillä kahvoilla',sarjat:4,toistot:'6',varaa:'V5',tauko:'4 min'},
+      {name:'Kahden jalan polvenojennus istuen',sarjat:2,toistot:'12',varaa:'V2',vuoroPari:'Kahden jalan polvenkoukistus istuen',tauko:'3 min'},
+      {name:'Kahden jalan polvenkoukistus istuen',sarjat:2,toistot:'12',varaa:'V2',vuoroPari:'Kahden jalan polvenojennus istuen',tauko:'3 min'},
+      {name:'Puunhakkaaja',sarjat:2,toistot:'8+8',varaa:'V2',tauko:'3 min'},
+    ],
+    [ // T3 Yläkroppa 2
+      {name:'Kapea penkkipunnerrus',sarjat:3,toistot:'3',varaa:'V2',tauko:'4 min'},
+      {name:'Pystypunnerruslaite',sarjat:4,toistot:'8',varaa:'V2',vuoroPari:'Ylätalja vastaotteella',tauko:'4 min'},
+      {name:'Ylätalja vastaotteella',sarjat:4,toistot:'8',varaa:'V2',vuoroPari:'Pystypunnerruslaite',tauko:'4 min'},
+      {name:'Ojentajapunnerrus niskan takaa seisten mutkatangolla',sarjat:2,toistot:'8',varaa:'V2',vuoroPari:'Yhden käden kuubalainen kierto',tauko:'3 min'},
+      {name:'Yhden käden kuubalainen kierto',sarjat:2,toistot:'8+8',varaa:'V2',vuoroPari:'Ojentajapunnerrus niskan takaa seisten mutkatangolla',tauko:'3 min'},
+    ],
+    [ // T4 Ala- ja keskikroppa 2
+      {name:'Takakyykky',sarjat:4,toistot:'6',varaa:'V5',tauko:'4 min'},
+      {name:'Takareisinosto',sarjat:4,toistot:'6',varaa:'V3',tauko:'3 min'},
+      {name:'Vatsarutistuslaite',sarjat:2,toistot:'8',varaa:'V2',tauko:'3 min'},
+    ],
+  ],
+  // ── VKO 26 ──────────────────────────────────────────────────
+  26: [
+    [ // T1 Yläkroppa 1
+      {name:'Penkkipunnerrus 2 s alastopeilla',sarjat:3,toistot:'3',varaa:'V1',tauko:'4 min'},
+      {name:'Rintaprässi',sarjat:4,toistot:'8',varaa:'V1',vuoroPari:'Vaakasoutulaite',tauko:'4 min'},
+      {name:'Vaakasoutulaite',sarjat:4,toistot:'8',varaa:'V1',vuoroPari:'Rintaprässi',tauko:'4 min'},
+      {name:'Push down',sarjat:2,toistot:'8',varaa:'V1',vuoroPari:'Olkanivelen ulkokierto taljassa (kyynärpää 45° irti)',tauko:'3 min'},
+      {name:'Olkanivelen ulkokierto taljassa (kyynärpää 45° irti)',sarjat:2,toistot:'8+8',varaa:'V1',vuoroPari:'Push down',tauko:'3 min'},
+    ],
+    [ // T2 Ala- ja keskikroppa 1
+      {name:'TrapBar-maastaveto syvillä kahvoilla',sarjat:4,toistot:'6',varaa:'V4',tauko:'4 min'},
+      {name:'Kahden jalan polvenojennus istuen',sarjat:2,toistot:'12',varaa:'V1',vuoroPari:'Kahden jalan polvenkoukistus istuen',tauko:'3 min'},
+      {name:'Kahden jalan polvenkoukistus istuen',sarjat:2,toistot:'12',varaa:'V1',vuoroPari:'Kahden jalan polvenojennus istuen',tauko:'3 min'},
+      {name:'Puunhakkaaja',sarjat:2,toistot:'8+8',varaa:'V1',tauko:'3 min'},
+    ],
+    [ // T3 Yläkroppa 2
+      {name:'Kapea penkkipunnerrus',sarjat:3,toistot:'3',varaa:'V1',tauko:'4 min'},
+      {name:'Pystypunnerruslaite',sarjat:4,toistot:'8',varaa:'V1',vuoroPari:'Ylätalja vastaotteella',tauko:'4 min'},
+      {name:'Ylätalja vastaotteella',sarjat:4,toistot:'8',varaa:'V1',vuoroPari:'Pystypunnerruslaite',tauko:'4 min'},
+      {name:'Ojentajapunnerrus niskan takaa seisten mutkatangolla',sarjat:2,toistot:'8',varaa:'V1',vuoroPari:'Yhden käden kuubalainen kierto',tauko:'3 min'},
+      {name:'Yhden käden kuubalainen kierto',sarjat:2,toistot:'8+8',varaa:'V1',vuoroPari:'Ojentajapunnerrus niskan takaa seisten mutkatangolla',tauko:'3 min'},
+    ],
+    [ // T4 Ala- ja keskikroppa 2
+      {name:'Takakyykky',sarjat:4,toistot:'6',varaa:'V4',tauko:'4 min'},
+      {name:'Takareisinosto',sarjat:4,toistot:'6',varaa:'V2',tauko:'3 min'},
+      {name:'Vatsarutistuslaite',sarjat:2,toistot:'8',varaa:'V2',tauko:'3 min'},
+    ],
+  ],
+  // ── VKO 27 (helppo, vain 2 treeniä) ─────────────────────────
+  27: [
+    [ // T1 Koko kroppa salilla
+      {name:'Takakyykky',sarjat:3,toistot:'3',varaa:'V4',tauko:'4 min'},
+      {name:'Penkkipunnerrus 2 s alastopilla',sarjat:3,toistot:'2',varaa:'V3',tauko:'4 min'},
+      {name:'Kahden jalan polvenojennus istuen',sarjat:4,toistot:'10',varaa:'V3',vuoroPari:'Kahden jalan polvenkoukistus istuen',tauko:'3 min'},
+      {name:'Kahden jalan polvenkoukistus istuen',sarjat:4,toistot:'10',varaa:'V3',vuoroPari:'Kahden jalan polvenojennus istuen',tauko:'3 min'},
+    ],
+    [ // T2 Yläkroppa kotona
+      {name:'Vastaoteleuanveto',sarjat:5,toistot:'4',varaa:'V4',vuoroPari:'Etunojapunnerrus lisäpainoilla punnerrukahvoilla',tauko:'4 min'},
+      {name:'Etunojapunnerrus lisäpainoilla punnerrukahvoilla',sarjat:5,toistot:'8',varaa:'V4',vuoroPari:'Vastaoteleuanveto',tauko:'4 min'},
+      {name:'Yhden käden face-pull ulkokierrolla kuminauhalla',sarjat:4,toistot:'8+8',varaa:'V4',tauko:'3 min'},
+    ],
+  ],
+  // ── VKO 28 (keskikova) ───────────────────────────────────────
+  28: [
+    [ // T1 Koko kroppa salilla 1
+      {name:'Takakyykky',sarjat:3,toistot:'3',varaa:'V3',tauko:'4 min'},
+      {name:'Penkkipunnerrus 2 s alastopilla',sarjat:3,toistot:'2',varaa:'V2',tauko:'4 min'},
+      {name:'Kahden jalan polvenojennus istuen',sarjat:4,toistot:'10',varaa:'V2',vuoroPari:'Kahden jalan polvenkoukistus istuen',tauko:'3 min'},
+      {name:'Kahden jalan polvenkoukistus istuen',sarjat:4,toistot:'10',varaa:'V2',vuoroPari:'Kahden jalan polvenojennus istuen',tauko:'3 min'},
+    ],
+    [ // T2 Yläkroppa kotona
+      {name:'Vastaoteleuanveto',sarjat:5,toistot:'4',varaa:'V3',vuoroPari:'Etunojapunnerrus lisäpainoilla punnerrukahvoilla',tauko:'4 min'},
+      {name:'Etunojapunnerrus lisäpainoilla punnerrukahvoilla',sarjat:5,toistot:'8',varaa:'V3',vuoroPari:'Vastaoteleuanveto',tauko:'4 min'},
+      {name:'Yhden käden face-pull ulkokierrolla kuminauhalla',sarjat:4,toistot:'8+8',varaa:'V3',tauko:'3 min'},
+    ],
+    [ // T3 Koko kroppa salilla 2
+      {name:'1,5-penkkipunnerrus loppuojennusta korostavasti',sarjat:3,toistot:'3+2+1',varaa:'V2',note:'1x3 V2 + 1x2 V2 + 1x1 V2',tauko:'4 min'},
+      {name:'Maastaveto',sarjat:3,toistot:'3',varaa:'V3',tauko:'4 min'},
+      {name:'Pystypunnerruslaite',sarjat:5,toistot:'6',varaa:'V2',vuoroPari:'Vaakasoutulaite',tauko:'3 min'},
+      {name:'Vaakasoutulaite',sarjat:5,toistot:'6',varaa:'V2',vuoroPari:'Pystypunnerruslaite',tauko:'3 min'},
+      {name:'Ojentajapunnerrus niskan takaa seisten mutkatangolla',sarjat:4,toistot:'6',varaa:'V3',tauko:'3 min'},
+    ],
+    [ // T4 Ala- ja keskikroppa kotona
+      {name:'Pistoolikyykky',sarjat:4,toistot:'5+5',varaa:'V3',tauko:'2 min'},
+      {name:'Takareisiliu\'utus',sarjat:4,toistot:'Max',varaa:'V2',tauko:'3 min'},
+      {name:'Rekkilinkkarit suoraan-kiertäen-kiertäen',sarjat:4,toistot:'9',varaa:'V2',tauko:'3 min'},
+    ],
+  ],
+  // ── VKO 29 (kova) ────────────────────────────────────────────
+  29: [
+    [
+      {name:'Takakyykky',sarjat:3,toistot:'3',varaa:'V2',tauko:'4 min'},
+      {name:'Penkkipunnerrus 2 s alastopilla',sarjat:3,toistot:'2',varaa:'V1',tauko:'4 min'},
+      {name:'Kahden jalan polvenojennus istuen',sarjat:4,toistot:'10',varaa:'V1',vuoroPari:'Kahden jalan polvenkoukistus istuen',tauko:'3 min'},
+      {name:'Kahden jalan polvenkoukistus istuen',sarjat:4,toistot:'10',varaa:'V1',vuoroPari:'Kahden jalan polvenojennus istuen',tauko:'3 min'},
+    ],
+    [
+      {name:'Vastaoteleuanveto',sarjat:5,toistot:'4',varaa:'V2',vuoroPari:'Etunojapunnerrus lisäpainoilla punnerrukahvoilla',tauko:'4 min'},
+      {name:'Etunojapunnerrus lisäpainoilla punnerrukahvoilla',sarjat:5,toistot:'8',varaa:'V2',vuoroPari:'Vastaoteleuanveto',tauko:'4 min'},
+      {name:'Yhden käden face-pull ulkokierrolla kuminauhalla',sarjat:4,toistot:'8+8',varaa:'V2',tauko:'3 min'},
+    ],
+    [
+      {name:'1,5-penkkipunnerrus loppuojennusta korostavasti',sarjat:3,toistot:'3+2+1',varaa:'V1,5',note:'1x3 V1,5 + 1x2 V1,5 + 1x1 V1',tauko:'4 min'},
+      {name:'Maastaveto',sarjat:3,toistot:'3',varaa:'V2',tauko:'4 min'},
+      {name:'Pystypunnerruslaite',sarjat:5,toistot:'6',varaa:'V1',vuoroPari:'Vaakasoutulaite',tauko:'3 min'},
+      {name:'Vaakasoutulaite',sarjat:5,toistot:'6',varaa:'V1',vuoroPari:'Pystypunnerruslaite',tauko:'3 min'},
+      {name:'Ojentajapunnerrus niskan takaa seisten mutkatangolla',sarjat:4,toistot:'6',varaa:'V2',tauko:'3 min'},
+    ],
+    [
+      {name:'Pistoolikyykky',sarjat:4,toistot:'5+5',varaa:'V2',tauko:'2 min'},
+      {name:'Takareisiliu\'utus',sarjat:4,toistot:'Max',varaa:'V1',tauko:'3 min'},
+      {name:'Rekkilinkkarit suoraan-kiertäen-kiertäen',sarjat:4,toistot:'9',varaa:'V1',tauko:'3 min'},
+    ],
+  ],
+  // ── VKO 30 (kova) ────────────────────────────────────────────
+  30: [
+    [
+      {name:'Takakyykky',sarjat:3,toistot:'3',varaa:'V1',tauko:'4 min'},
+      {name:'Penkkipunnerrus 2 s alastopilla',sarjat:3,toistot:'2-2-2',varaa:'V2-V1-V0,5',note:'3x2 V2-V1-V0,5',tauko:'4 min'},
+      {name:'Kahden jalan polvenojennus istuen',sarjat:4,toistot:'10',varaa:'V0,5',vuoroPari:'Kahden jalan polvenkoukistus istuen',tauko:'3 min'},
+      {name:'Kahden jalan polvenkoukistus istuen',sarjat:4,toistot:'10',varaa:'V0,5',vuoroPari:'Kahden jalan polvenojennus istuen',tauko:'3 min'},
+    ],
+    [
+      {name:'Vastaoteleuanveto',sarjat:5,toistot:'4',varaa:'V1',vuoroPari:'Etunojapunnerrus lisäpainoilla punnerrukahvoilla',tauko:'4 min'},
+      {name:'Etunojapunnerrus lisäpainoilla punnerrukahvoilla',sarjat:5,toistot:'8',varaa:'V1',vuoroPari:'Vastaoteleuanveto',tauko:'4 min'},
+      {name:'Yhden käden face-pull ulkokierrolla kuminauhalla',sarjat:4,toistot:'8+8',varaa:'V1',tauko:'3 min'},
+    ],
+    [
+      {name:'1,5-penkkipunnerrus loppuojennusta korostavasti',sarjat:3,toistot:'3+2+1',varaa:'V1-V0,5',note:'1x3 V1 + 1x2 V1 + 1x1 V0,5',tauko:'4 min'},
+      {name:'Maastaveto',sarjat:3,toistot:'3',varaa:'V3-V2-V1',note:'3x3 V3-V2-V1',tauko:'4 min'},
+      {name:'Pystypunnerruslaite',sarjat:5,toistot:'6',varaa:'V0,5',vuoroPari:'Vaakasoutulaite',tauko:'3 min'},
+      {name:'Vaakasoutulaite',sarjat:5,toistot:'6',varaa:'V0,5',vuoroPari:'Pystypunnerruslaite',tauko:'3 min'},
+      {name:'Ojentajapunnerrus niskan takaa seisten mutkatangolla',sarjat:4,toistot:'6',varaa:'V1',tauko:'3 min'},
+    ],
+    [
+      {name:'Pistoolikyykky',sarjat:4,toistot:'5+5',varaa:'V1',tauko:'2 min'},
+      {name:'Takareisiliu\'utus',sarjat:4,toistot:'Max',varaa:'V0,5',tauko:'3 min'},
+      {name:'Rekkilinkkarit suoraan-kiertäen-kiertäen',sarjat:4,toistot:'9',varaa:'V0,5',tauko:'3 min'},
+    ],
+  ],
+  // ── VKO 31 (helppo, vain 2 treeniä) ─────────────────────────
+  31: [
+    [
+      {name:'Takakyykky',sarjat:3,toistot:'2',varaa:'V4',tauko:'4 min'},
+      {name:'Penkkipunnerrus 2 s alastopilla',sarjat:3,toistot:'1',varaa:'V3',tauko:'4 min'},
+      {name:'Kahden jalan polvenojennus istuen',sarjat:4,toistot:'8',varaa:'V3',vuoroPari:'Kahden jalan polvenkoukistus istuen',tauko:'3 min'},
+      {name:'Kahden jalan polvenkoukistus istuen',sarjat:4,toistot:'8',varaa:'V3',vuoroPari:'Kahden jalan polvenojennus istuen',tauko:'3 min'},
+    ],
+    [
+      {name:'Vastaoteleuanveto',sarjat:5,toistot:'5',varaa:'V3',vuoroPari:'Etunojapunnerrus lisäpainoilla punnerrukahvoilla',tauko:'4 min'},
+      {name:'Etunojapunnerrus lisäpainoilla punnerrukahvoilla',sarjat:5,toistot:'6',varaa:'V3',vuoroPari:'Vastaoteleuanveto',tauko:'4 min'},
+      {name:'Yhden käden face-pull ulkokierrolla kuminauhalla',sarjat:4,toistot:'6+6',varaa:'V3',tauko:'3 min'},
+    ],
+  ],
+  // ── VKO 32 (kova) ────────────────────────────────────────────
+  32: [
+    [ // T1 Yläkroppa 1
+      {name:'Penkkipunnerrus kisastopilla',sarjat:3,toistot:'3',varaa:'V3-V2-V1',note:'3x3 V3-V2-V1',tauko:'4 min'},
+      {name:'Penkkipunnerrus kumeilla ja raudalla (30 kg kumista yläasentoon)',sarjat:3,toistot:'3',varaa:'V2',tauko:'4 min'},
+      {name:'Penkkipunnerrus',sarjat:3,toistot:'6',varaa:'V2',vuoroPari:'Alatalja V-kahvalla',tauko:'4 min'},
+      {name:'Alatalja V-kahvalla',sarjat:3,toistot:'6',varaa:'V2',vuoroPari:'Penkkipunnerrus',tauko:'4 min'},
+    ],
+    [ // T2 Ala- ja keskikroppa 1
+      {name:'Takakyykky',sarjat:3,toistot:'2',varaa:'V2',tauko:'4 min'},
+      {name:'Maastaveto 2 s stopilla polven alla',sarjat:3,toistot:'3',varaa:'V3',tauko:'4 min'},
+      {name:'Kahden jalan polvenojennus istuen',sarjat:4,toistot:'6',varaa:'V2',vuoroPari:'Kahden jalan polvenkoukistus istuen',tauko:'4 min'},
+      {name:'Kahden jalan polvenkoukistus istuen',sarjat:4,toistot:'6',varaa:'V2',vuoroPari:'Kahden jalan polvenojennus istuen',tauko:'4 min'},
+    ],
+    [ // T3 Yläkroppa 2
+      {name:'Penkkipunnerrus',sarjat:3,toistot:'3',varaa:'V2',tauko:'4 min'},
+      {name:'1,5-penkkipunnerrus rinnalta lähtöä korostavasti',sarjat:3,toistot:'3',varaa:'V2',tauko:'4 min'},
+      {name:'Pystypunnerrus',sarjat:3,toistot:'6',varaa:'V2',vuoroPari:'Ylätalja V-kahvalla rinnalle',tauko:'4 min'},
+      {name:'Ylätalja V-kahvalla rinnalle',sarjat:3,toistot:'6',varaa:'V2',vuoroPari:'Pystypunnerrus',tauko:'4 min'},
+      {name:'Olkanivelen ulkokierto käsipainolla (olkavarsi vaakatasossa, kyynärpää 90°)',sarjat:3,toistot:'10+10',varaa:'V2',tauko:'3 min'},
+    ],
+    [ // T4 Ala- ja keskikroppa 2
+      {name:'Maastaveto',sarjat:3,toistot:'2',varaa:'V2',tauko:'4 min'},
+      {name:'Takakyykky 2 s alastopilla',sarjat:3,toistot:'3',varaa:'V3',tauko:'4 min'},
+      {name:'Istumaannousut vinolaudalla suoraan-kiertäen-kiertäen',sarjat:4,toistot:'12',varaa:'V2',tauko:'3 min'},
+    ],
+  ],
+  // ── VKO 33 (kova) ────────────────────────────────────────────
+  33: [
+    [
+      {name:'Penkkipunnerrus kisastopilla',sarjat:3,toistot:'3',varaa:'V2-V1-V0,5',note:'3x3 V2-V1-V0,5',tauko:'4 min'},
+      {name:'Penkkipunnerrus kumeilla ja raudalla (30 kg kumista yläasentoon)',sarjat:3,toistot:'3',varaa:'V1',tauko:'4 min'},
+      {name:'Penkkipunnerrus',sarjat:3,toistot:'6',varaa:'V1',vuoroPari:'Alatalja V-kahvalla',tauko:'4 min'},
+      {name:'Alatalja V-kahvalla',sarjat:3,toistot:'6',varaa:'V1',vuoroPari:'Penkkipunnerrus',tauko:'4 min'},
+    ],
+    [
+      {name:'Takakyykky',sarjat:3,toistot:'2',varaa:'V1',tauko:'4 min'},
+      {name:'Maastaveto 2 s stopilla polven alla',sarjat:3,toistot:'3',varaa:'V2',tauko:'4 min'},
+      {name:'Kahden jalan polvenojennus istuen',sarjat:4,toistot:'6',varaa:'V1',vuoroPari:'Kahden jalan polvenkoukistus istuen',tauko:'4 min'},
+      {name:'Kahden jalan polvenkoukistus istuen',sarjat:4,toistot:'6',varaa:'V1',vuoroPari:'Kahden jalan polvenojennus istuen',tauko:'4 min'},
+    ],
+    [
+      {name:'Penkkipunnerrus',sarjat:3,toistot:'3',varaa:'V1',tauko:'4 min'},
+      {name:'1,5-penkkipunnerrus rinnalta lähtöä korostavasti',sarjat:3,toistot:'3',varaa:'V1',tauko:'4 min'},
+      {name:'Pystypunnerrus',sarjat:3,toistot:'6',varaa:'V1',vuoroPari:'Ylätalja V-kahvalla rinnalle',tauko:'4 min'},
+      {name:'Ylätalja V-kahvalla rinnalle',sarjat:3,toistot:'6',varaa:'V1',vuoroPari:'Pystypunnerrus',tauko:'4 min'},
+      {name:'Olkanivelen ulkokierto käsipainolla (olkavarsi vaakatasossa, kyynärpää 90°)',sarjat:3,toistot:'10+10',varaa:'V1',tauko:'3 min'},
+    ],
+    [
+      {name:'Maastaveto',sarjat:3,toistot:'2',varaa:'V1',tauko:'4 min'},
+      {name:'Takakyykky 2 s alastopilla',sarjat:3,toistot:'3',varaa:'V3',tauko:'4 min'},
+      {name:'Istumaannousut vinolaudalla suoraan-kiertäen-kiertäen',sarjat:4,toistot:'12',varaa:'V1',tauko:'3 min'},
+    ],
+  ],
+  // ── VKO 34 (helppo, vain 2 treeniä) ─────────────────────────
+  34: [
+    [
+      {name:'Penkkipunnerrus kisastopilla',sarjat:3,toistot:'2',varaa:'V3',tauko:'4 min'},
+      {name:'Penkkipunnerrus kumeilla ja raudalla (30 kg kumista yläasentoon)',sarjat:3,toistot:'2',varaa:'V3',tauko:'4 min'},
+      {name:'Penkkipunnerrus',sarjat:3,toistot:'5',varaa:'V3',vuoroPari:'Alatalja V-kahvalla',tauko:'4 min'},
+      {name:'Alatalja V-kahvalla',sarjat:3,toistot:'5',varaa:'V3',vuoroPari:'Penkkipunnerrus',tauko:'4 min'},
+    ],
+    [
+      {name:'Takakyykky',sarjat:3,toistot:'1',varaa:'V3',tauko:'4 min'},
+      {name:'Maastaveto 2 s stopilla polven alla',sarjat:3,toistot:'2',varaa:'V4',tauko:'4 min'},
+      {name:'Kahden jalan polvenojennus istuen',sarjat:4,toistot:'5',varaa:'V3',vuoroPari:'Kahden jalan polvenkoukistus istuen',tauko:'4 min'},
+      {name:'Kahden jalan polvenkoukistus istuen',sarjat:4,toistot:'5',varaa:'V3',vuoroPari:'Kahden jalan polvenojennus istuen',tauko:'4 min'},
+    ],
+  ],
+  // ── VKO 35 (kova) ────────────────────────────────────────────
+  35: [
+    [
+      {name:'Penkkipunnerrus kisastopilla',sarjat:3,toistot:'2',varaa:'V3-V2-V1',note:'3x2 V3-V2-V1',tauko:'4 min'},
+      {name:'Penkkipunnerrus kumeilla ja raudalla (30 kg kumista yläasentoon)',sarjat:3,toistot:'2',varaa:'V2',tauko:'4 min'},
+      {name:'Penkkipunnerrus',sarjat:3,toistot:'5',varaa:'V2',vuoroPari:'Alatalja V-kahvalla',tauko:'4 min'},
+      {name:'Alatalja V-kahvalla',sarjat:3,toistot:'5',varaa:'V2',vuoroPari:'Penkkipunnerrus',tauko:'4 min'},
+    ],
+    [
+      {name:'Takakyykky',sarjat:3,toistot:'1+2+2',varaa:'V2',note:'1x1 V2 + 2x2 V2-V1',tauko:'4 min'},
+      {name:'Maastaveto 2 s stopilla polven alla',sarjat:3,toistot:'2',varaa:'V3',tauko:'4 min'},
+      {name:'Kahden jalan polvenojennus istuen',sarjat:4,toistot:'5',varaa:'V2',vuoroPari:'Kahden jalan polvenkoukistus istuen',tauko:'4 min'},
+      {name:'Kahden jalan polvenkoukistus istuen',sarjat:4,toistot:'5',varaa:'V2',vuoroPari:'Kahden jalan polvenojennus istuen',tauko:'4 min'},
+    ],
+    [
+      {name:'Penkkipunnerrus',sarjat:3,toistot:'2',varaa:'V2',tauko:'4 min'},
+      {name:'1,5-penkkipunnerrus rinnalta lähtöä korostavasti',sarjat:3,toistot:'2',varaa:'V2',tauko:'4 min'},
+      {name:'Pystypunnerrus',sarjat:3,toistot:'5',varaa:'V2',vuoroPari:'Ylätalja V-kahvalla rinnalle',tauko:'4 min'},
+      {name:'Ylätalja V-kahvalla rinnalle',sarjat:3,toistot:'5',varaa:'V2',vuoroPari:'Pystypunnerrus',tauko:'4 min'},
+      {name:'Olkanivelen ulkokierto käsipainolla (olkavarsi vaakatasossa, kyynärpää 90°)',sarjat:3,toistot:'8+8',varaa:'V2',tauko:'3 min'},
+    ],
+    [
+      {name:'Maastaveto',sarjat:3,toistot:'1+2+2',varaa:'V2',note:'1x1 V2 + 2x2 V2-V1',tauko:'4 min'},
+      {name:'Takakyykky 2 s alastopilla',sarjat:3,toistot:'2',varaa:'V3',tauko:'4 min'},
+      {name:'Istumaannousut vinolaudalla suoraan-kiertäen-kiertäen',sarjat:4,toistot:'9',varaa:'V2',tauko:'3 min'},
+    ],
+  ],
+  // ── VKO 36 (kova) ────────────────────────────────────────────
+  36: [
+    [
+      {name:'Penkkipunnerrus kisastopilla',sarjat:3,toistot:'2',varaa:'V2-V1-V0,5',note:'3x2 V2-V1-V0,5',tauko:'4 min'},
+      {name:'Penkkipunnerrus kumeilla ja raudalla (30 kg kumista yläasentoon)',sarjat:3,toistot:'2',varaa:'V1',tauko:'4 min'},
+      {name:'Penkkipunnerrus',sarjat:3,toistot:'5',varaa:'V1',vuoroPari:'Alatalja V-kahvalla',tauko:'4 min'},
+      {name:'Alatalja V-kahvalla',sarjat:3,toistot:'5',varaa:'V1',vuoroPari:'Penkkipunnerrus',tauko:'4 min'},
+    ],
+    [
+      {name:'Takakyykky',sarjat:3,toistot:'1+2+2',varaa:'V1-V0,5',note:'1x1 V1 + 2x2 V1,5-V0,5',tauko:'4 min'},
+      {name:'Maastaveto 2 s stopilla polven alla',sarjat:3,toistot:'2',varaa:'V2',tauko:'4 min'},
+      {name:'Kahden jalan polvenojennus istuen',sarjat:4,toistot:'5',varaa:'V1',vuoroPari:'Kahden jalan polvenkoukistus istuen',tauko:'4 min'},
+      {name:'Kahden jalan polvenkoukistus istuen',sarjat:4,toistot:'5',varaa:'V1',vuoroPari:'Kahden jalan polvenojennus istuen',tauko:'4 min'},
+    ],
+    [
+      {name:'Penkkipunnerrus',sarjat:3,toistot:'2',varaa:'V1',tauko:'4 min'},
+      {name:'1,5-penkkipunnerrus rinnalta lähtöä korostavasti',sarjat:3,toistot:'2',varaa:'V1',tauko:'4 min'},
+      {name:'Pystypunnerrus',sarjat:3,toistot:'5',varaa:'V1',vuoroPari:'Ylätalja V-kahvalla rinnalle',tauko:'4 min'},
+      {name:'Ylätalja V-kahvalla rinnalle',sarjat:3,toistot:'5',varaa:'V1',vuoroPari:'Pystypunnerrus',tauko:'4 min'},
+      {name:'Olkanivelen ulkokierto käsipainolla (olkavarsi vaakatasossa, kyynärpää 90°)',sarjat:3,toistot:'8+8',varaa:'V1',tauko:'3 min'},
+    ],
+    [
+      {name:'Maastaveto',sarjat:3,toistot:'1+2+2',varaa:'V1-V0,5',note:'1x1 V1 + 2x2 V1,5-V0,5',tauko:'4 min'},
+      {name:'Takakyykky 2 s alastopilla',sarjat:3,toistot:'2',varaa:'V2',tauko:'4 min'},
+      {name:'Istumaannousut vinolaudalla suoraan-kiertäen-kiertäen',sarjat:4,toistot:'9',varaa:'V1',tauko:'3 min'},
+    ],
+  ],
+  // ── VKO 37 (helppo, vain 2 treeniä) ─────────────────────────
+  37: [
+    [
+      {name:'Penkkipunnerrus kisastopilla',sarjat:3,toistot:'1',varaa:'V3',tauko:'4 min'},
+      {name:'Penkkipunnerrus kumeilla ja raudalla (30 kg kumista yläasentoon)',sarjat:3,toistot:'1',varaa:'V3',tauko:'4 min'},
+      {name:'Penkkipunnerrus',sarjat:3,toistot:'4',varaa:'V3',vuoroPari:'Alatalja V-kahvalla',tauko:'4 min'},
+      {name:'Alatalja V-kahvalla',sarjat:3,toistot:'4',varaa:'V3',vuoroPari:'Penkkipunnerrus',tauko:'4 min'},
+    ],
+    [
+      {name:'Takakyykky',sarjat:3,toistot:'1',varaa:'V3',tauko:'4 min'},
+      {name:'Maastaveto 2 s stopilla polven alla',sarjat:3,toistot:'1',varaa:'V4',tauko:'4 min'},
+      {name:'Kahden jalan polvenojennus istuen',sarjat:4,toistot:'4',varaa:'V3',vuoroPari:'Kahden jalan polvenkoukistus istuen',tauko:'4 min'},
+      {name:'Kahden jalan polvenkoukistus istuen',sarjat:4,toistot:'4',varaa:'V3',vuoroPari:'Kahden jalan polvenojennus istuen',tauko:'4 min'},
+    ],
+  ],
+  // ── VKO 38 (kova) ────────────────────────────────────────────
+  38: [
+    [
+      {name:'Penkkipunnerrus kisastopilla',sarjat:3,toistot:'1',varaa:'V3-V2-V1',note:'3x1 V3-V2-V1',tauko:'4 min'},
+      {name:'Penkkipunnerrus kumeilla ja raudalla (30 kg kumista yläasentoon)',sarjat:3,toistot:'1',varaa:'V2',tauko:'4 min'},
+      {name:'Penkkipunnerrus',sarjat:3,toistot:'4',varaa:'V2',vuoroPari:'Alatalja V-kahvalla',tauko:'4 min'},
+      {name:'Alatalja V-kahvalla',sarjat:3,toistot:'4',varaa:'V2',vuoroPari:'Penkkipunnerrus',tauko:'4 min'},
+    ],
+    [
+      {name:'Takakyykky',sarjat:3,toistot:'1',varaa:'V3-V2-V1',note:'3x1 V3-V2-V1',tauko:'4 min'},
+      {name:'Maastaveto 2 s stopilla polven alla',sarjat:3,toistot:'1',varaa:'V3',tauko:'4 min'},
+      {name:'Kahden jalan polvenojennus istuen',sarjat:4,toistot:'4',varaa:'V2',vuoroPari:'Kahden jalan polvenkoukistus istuen',tauko:'4 min'},
+      {name:'Kahden jalan polvenkoukistus istuen',sarjat:4,toistot:'4',varaa:'V2',vuoroPari:'Kahden jalan polvenojennus istuen',tauko:'4 min'},
+    ],
+    [
+      {name:'Penkkipunnerrus',sarjat:3,toistot:'1',varaa:'V2',tauko:'4 min'},
+      {name:'1,5-penkkipunnerrus rinnalta lähtöä korostavasti',sarjat:3,toistot:'1',varaa:'V2',tauko:'4 min'},
+      {name:'Pystypunnerrus',sarjat:3,toistot:'4',varaa:'V2',vuoroPari:'Ylätalja V-kahvalla rinnalle',tauko:'4 min'},
+      {name:'Ylätalja V-kahvalla rinnalle',sarjat:3,toistot:'4',varaa:'V2',vuoroPari:'Pystypunnerrus',tauko:'4 min'},
+      {name:'Olkanivelen ulkokierto käsipainolla (olkavarsi vaakatasossa, kyynärpää 90°)',sarjat:3,toistot:'6+6',varaa:'V2',tauko:'3 min'},
+    ],
+    [
+      {name:'Maastaveto',sarjat:3,toistot:'1',varaa:'V3-V2-V1',note:'3x1 V3-V2-V1',tauko:'4 min'},
+      {name:'Takakyykky 2 s alastopilla',sarjat:3,toistot:'1',varaa:'V3',tauko:'4 min'},
+      {name:'Istumaannousut vinolaudalla suoraan-kiertäen-kiertäen',sarjat:4,toistot:'6',varaa:'V2',tauko:'3 min'},
+    ],
+  ],
+  // ── VKO 39 (herkistely, 3 treeniä) ───────────────────────────
+  39: [
+    [
+      {name:'Penkkipunnerrus kisastopilla',sarjat:2,toistot:'1',varaa:'V1,5-V0,5',note:'2x1 V1,5-V0,5',tauko:'4 min'},
+      {name:'Penkkipunnerrus kumeilla ja raudalla (30 kg kumista yläasentoon)',sarjat:2,toistot:'1',varaa:'V1',tauko:'4 min'},
+      {name:'Penkkipunnerrus',sarjat:2,toistot:'4',varaa:'V1',vuoroPari:'Alatalja V-kahvalla',tauko:'4 min'},
+      {name:'Alatalja V-kahvalla',sarjat:2,toistot:'4',varaa:'V1',vuoroPari:'Penkkipunnerrus',tauko:'4 min'},
+    ],
+    [
+      {name:'Takakyykky',sarjat:3,toistot:'1',varaa:'V3-V1,5-V0,5',note:'3x1 V3-V1,5-V0,5',tauko:'4 min'},
+      {name:'Maastaveto 2 s stopilla polven alla',sarjat:3,toistot:'1',varaa:'V2',tauko:'4 min'},
+      {name:'Kahden jalan polvenojennus istuen',sarjat:2,toistot:'4',varaa:'V1',vuoroPari:'Kahden jalan polvenkoukistus istuen',tauko:'4 min'},
+      {name:'Kahden jalan polvenkoukistus istuen',sarjat:2,toistot:'4',varaa:'V1',vuoroPari:'Kahden jalan polvenojennus istuen',tauko:'4 min'},
+    ],
+    [
+      {name:'Penkkipunnerrus',sarjat:2,toistot:'1',varaa:'V1',tauko:'4 min'},
+      {name:'1,5-penkkipunnerrus rinnalta lähtöä korostavasti',sarjat:2,toistot:'1',varaa:'V1',tauko:'4 min'},
+      {name:'Pystypunnerrus',sarjat:2,toistot:'4',varaa:'V1',vuoroPari:'Ylätalja V-kahvalla rinnalle',tauko:'4 min'},
+      {name:'Ylätalja V-kahvalla rinnalle',sarjat:2,toistot:'4',varaa:'V1',vuoroPari:'Pystypunnerrus',tauko:'4 min'},
+    ],
+  ],
+  // ── VKO 40 (kisa) ────────────────────────────────────────────
+  40: [
+    [ // Maanantai + Lauantai kisa
+      {name:'Takakyykky (Ma)',sarjat:3,toistot:'1',varaa:'V4-V3-V2',note:'3x1 V4-V3-V2',tauko:'4 min'},
+      {name:'Penkkipunnerrus kisastopilla (Ma)',sarjat:3,toistot:'1',varaa:'V3-V2-V1',note:'3x1 V3-V2-V1',tauko:'4 min'},
+      {name:'Maastaveto (Ma)',sarjat:3,toistot:'1',varaa:'V5-V4-V3',note:'3x1 V5-V4-V3',tauko:'4 min'},
+      {name:'Ylätalja V-kahvalla rinnalle (Ma)',sarjat:3,toistot:'5',varaa:'V3',tauko:'4 min'},
+      {name:'🏆 VOIMANOSTOKISA Äänekoski (La)',sarjat:1,toistot:'3 nostoa / laji',varaa:'—',note:'Kyykky + Penkki + Maastaveto'},
+    ],
+  ],
+};
+
 
 const RM_DATA=[
   {pct:0.95,reps:2.59,min:1.34,max:3.84},{pct:0.90,reps:4.11,min:2.65,max:5.57},
@@ -554,7 +969,8 @@ function init(){
   document.getElementById('rm-m').textContent=S.settings.m1rm;
   const now=new Date(),jan1=new Date(now.getFullYear(),0,1);
   const wk=Math.ceil((((now-jan1)/86400000)+jan1.getDay()+1)/7);
-  currentVko=(wk>=16&&wk<=23)?wk:16;
+  const allVkot=[16,17,18,19,20,21,22,23,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40];
+  currentVko=allVkot.includes(wk)?wk:25;
   document.getElementById('vko-sel').value=currentVko;
   // Lataa tallennetut yhteysasetukset
   const savedUrl=localStorage.getItem('p500_script_url')||'';
@@ -627,7 +1043,17 @@ function buildSuggestions(ex){
   return{prefillWeights:pw,prefillReps:pr,prevLine,commentLine,rmLine};
 }
 
+// Palauttaa true jos viikko kuuluu uuteen ohjelmaan (25-40)
+function isOhjelma2(vko){ return vko >= 25; }
+
 function getExercises(vko,ti){
+  if(isOhjelma2(vko)){
+    // Uusi ohjelma — data suoraan OHJELMA2-rakenteesta
+    const vkoData = OHJELMA2[vko];
+    if(!vkoData || !vkoData[ti]) return [];
+    return vkoData[ti];
+  }
+  // Vanha ohjelma 16-23
   const p=VKO_PARAMS[vko];
   return TREENI_POHJA[ti].map(ex=>{
     const isMain=ex.tyyppi==='maxvoima';
@@ -640,13 +1066,29 @@ function getExercises(vko,ti){
   });
 }
 
+function getTreeniNimet(vko){
+  if(isOhjelma2(vko) && OHJELMA2_TREENIT[vko]) return OHJELMA2_TREENIT[vko].nimet;
+  return ['Ylä 1','Ala 1','Ylä 2','Ala 2'];
+}
+
+function getAvailableTreenit(vko){
+  if(isOhjelma2(vko) && OHJELMA2_TREENIT[vko]){
+    return OHJELMA2_TREENIT[vko].jako;
+  }
+  return VKO_PARAMS[vko] ? (VKO_PARAMS[vko].vain_treenit||[0,1,2,3]) : [0,1,2,3];
+}
+
 function onVkoChange(){currentVko=parseInt(document.getElementById('vko-sel').value);currentTreeniIdx=0;renderTabs();renderForm();}
 
 function renderTabs(){
-  const p=VKO_PARAMS[currentVko],available=p.vain_treenit||[0,1,2,3];
+  const available=getAvailableTreenit(currentVko);
+  const nimet=getTreeniNimet(currentVko);
   if(!available.includes(currentTreeniIdx))currentTreeniIdx=available[0];
-  const shorts=['Ylä 1','Ala 1','Ylä 2','Ala 2'];
-  document.getElementById('treeni-tabs').innerHTML=available.map(ti=>`<button class="treeni-tab ${ti===currentTreeniIdx?'active':''}" onclick="selectTreeni(${ti})">${shorts[ti]}</button>`).join('');
+  document.getElementById('treeni-tabs').innerHTML=available.map((ti,i)=>{
+    const nimi=nimet[i]||`Treeni ${i+1}`;
+    const short=nimi.length>10?nimi.slice(0,10)+'…':nimi;
+    return`<button class="treeni-tab ${ti===currentTreeniIdx?'active':''}" onclick="selectTreeni(${ti})">${short}</button>`;
+  }).join('');
 }
 
 function selectTreeni(idx){
@@ -657,7 +1099,12 @@ function selectTreeni(idx){
 
 function renderForm(){
   const exercises=getExercises(currentVko,currentTreeniIdx);
-  document.getElementById('treeni-otsikko').textContent=`VKO ${currentVko} · ${TREENI_NIMET[currentTreeniIdx]} (${VKO_TYYPIT[currentVko]})`;
+  const available=getAvailableTreenit(currentVko);
+  const nimet=getTreeniNimet(currentVko);
+  const tiIdx=available.indexOf(currentTreeniIdx);
+  const treeniNimi=nimet[tiIdx]||TREENI_NIMET[currentTreeniIdx]||'Treeni';
+  document.getElementById('treeni-otsikko').textContent=`VKO ${currentVko} · ${treeniNimi} (${VKO_TYYPIT[currentVko]||''})`;
+
   const cont=document.getElementById('exercises-container');
   cont.innerHTML='';
   exercises.forEach(ex=>{
